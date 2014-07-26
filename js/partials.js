@@ -1,4 +1,11 @@
+/**
+*	@File partials.js
+*	@Desc 팝업창 관리
+*	@Auth yag12
+*	@Data 2012. 9 .24
+*/
 var partials = {
+	notUpdate: [],
 	currentZindex: 10000,
 	windows: {},
 
@@ -24,6 +31,49 @@ var partials = {
 		}
 	},
 
+	// 업데이트
+	update: function(id, callback)
+	{
+		try
+		{
+			for(var win in this.windows)
+			{
+				if(typeof id == "undefined" || win.indexOf(id) != -1)
+				{
+					var update = true;
+					for(var i in this.notUpdate)
+					{
+						if(this.windows[win].params.method.indexOf(this.notUpdate[i]) > -1)
+						{
+							update = false;
+						}
+					}
+
+					if(update == true)
+					{
+						this.windows[win].dispatcher(callback);
+					}
+				}
+			}
+	
+			return true;
+		}
+		catch(e)
+		{
+			return false;
+		}
+	},
+
+	// params 데이터 갱신 후 업데이트
+	replace: function(id, params)
+	{
+		if(typeof this.windows[id] != "undefined")
+		{
+			this.windows[id].params = params;
+			this.update(id);
+		}
+	},
+
 	// 삭제
 	remove: function(id)
 	{
@@ -33,6 +83,11 @@ var partials = {
 			{
 				if(typeof id == "undefined" || win.indexOf(id) != -1)
 				{
+					if(moveElementFocus == this.windows[win].element)
+					{
+						delete moveElementFocus;
+					}
+
 					this.zindex(win);
 					this.current_zindex = this.current_zindex - 1;
 
@@ -84,5 +139,19 @@ var partials = {
 		catch(e){ }
 
 		return false;
+	},
+
+	// 팝업 타이틀바 변경
+	setTitle: function(title, id)
+	{
+		if(typeof id == "undefined" && typeof moveElementFocus != "undefined")
+		{
+			var id = moveElementFocus.attr("id");
+		}
+
+		if(typeof this.windows[id] != "undefined")
+		{
+			this.windows[id].setTitle(title);
+		}
 	}
 };

@@ -2,4 +2,4 @@
 .popupStyle .titleBar{position:absolute; z-index:1; width:100%; top:0px; left:0px; height:30px; background:url('../img/title_bg.gif') top left repeat-x;font-width:bold;}
 .popupStyle .titleBar .titleTxt{color:#e0c3aa; font-size:16px;text-align:center;padding-top:6px;margin:0px;}
 .popupStyle .closeBtn{position:absolute; z-index:2; width:15px; height:15px;top:8px;right:10px;cursor:pointer;}
-.popupStyle .popBody{display:inline-block; zoom:1; *display:inline; margin:37px 7px 7px 7px;background-color:#1c1614;min-width:300px;min-height:200px;}
+.popupStyle .popBody{display:inline-block; zoom:1; *display:inline; margin:37px 7px 7px 7px;background-color:#F3F3F3;min-width:300px;min-height:200px;}

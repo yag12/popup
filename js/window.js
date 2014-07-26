@@ -1,3 +1,9 @@
+/**
+*	@File windows.js
+*	@Desc 팝업창 정보
+*	@Auth yag12
+*	@Data 2012. 9. 24
+*/
 var windows = function()
 {
 	this.topElementId = null;
@@ -5,7 +11,9 @@ var windows = function()
 	this.element = null;
 	this.elementId = null;
 	this.contentId = null;
+	this.params = null;
 	this.callback = null;
+	this.popupPosition = false;
 	this.options = {
 		"title": "",
 		"style": "popupStyle",
@@ -32,12 +40,28 @@ var windows = function()
 			this.options.top = 0;
 			this.options.left = 0;
 		}
-
+		else
+		{
+			if(typeof data.mainMenu == "undefined" || data.mainMenu == false)
+			{
+				if(elementId == "common" && main.saveMenu != null)
+				{
+					var tmpMenuIdx = main.saveMenu[0];
+					main.saveMenu = null;
+					main.topMenuLeaveEvt($("li[id='menu_"+tmpMenuIdx+"']", ".mainm"));
+				}
+			}
+		}
 		this.elementId = elementId;
 		this.contentId = this.elementId + "Contents";
 
 		if(typeof data != "undefined")
 		{
+			if(typeof data.params != "undefined")
+			{
+				this.params = data.params;
+			}
+
 			if(typeof data.title != "undefined")
 			{
 				this.options.title = data.title;
@@ -64,6 +88,34 @@ var windows = function()
 			}
 		}
 
+		// 창크기 변경시 팝업창 위치 조정
+		if(this.topElementId == this.elementId)
+		{
+			var _this = this;
+			$(window).resize(function()
+			{
+				_this.options = {
+					"top": 158, 
+					"left": ($(document).width() - 999)/2
+				};	
+
+				if(typeof data.top != "undefined")
+				{
+					_this.options.top = _this.options.top + data.top;
+				}
+
+				if(typeof data.left != "undefined")
+				{
+					_this.options.left = _this.options.left + data.left;
+				}
+
+				_this.element.css({
+					"top": _this.options.top,
+					"left": _this.options.left
+				})
+			});
+		}
+
 		this.init();
 	};
 
@@ -87,18 +139,65 @@ var windows = function()
 			$(this.parentElement).append(this.element);
 		}
 			
+		moveElementFocus = this.element;
+
 		this.popup();
 	};
 
 	// 정보 갱신
-	this.popupView = function()
+	this.dispatcher = function(callback)
 	{
-		this.element.css({
-			"top": this.options.top,
-			"left": this.options.left
-		}).show();
-		this.setTitle(this.options.title);
-		this.callback();
+		if(this.params != null)
+		{
+			var _this = this;
+			this.params.data['_elementId'] = this.elementId;
+			dispatcher.startup(this.contentId, this.params, function()
+			{
+				if(typeof _this.element != "undefined")
+				{
+					if(_this.element.hasClass("commonPop") && _this.popupPosition == true)
+					{
+						_this.popupPosition = false;
+						_this.element.css({
+							"top": _this.options.top,
+							"left": _this.options.left
+						}).show();
+
+						_this.setTitle(_this.options.title);
+					}
+				}
+
+				if(typeof callback === "function")
+				{
+					callback();
+				}
+				else if(typeof _this.callback === "function")
+				{
+					_this.callback();
+				}
+			});
+		}
+		else
+		{
+			if(typeof this.element != "undefined")
+			{
+				if(this.element.hasClass("commonPop") && this.popupPosition == true)
+				{
+					this.popupPosition = false;
+					this.element.css({
+						"top": this.options.top,
+						"left": this.options.left
+					}).show();
+
+					this.setTitle(this.options.title);
+				}
+			}
+
+			if(typeof this.callback === "function")
+			{
+				this.callback();
+			}
+		}
 	};
 	
 	// 팝업인 경우
@@ -119,7 +218,7 @@ var windows = function()
 			if(this.options.style != "")
 			{
 				closeBtn = $("<div class='closeBtn' />").append(
-					$("<img />").attr("src", "./img/btn_close.gif")
+					$("<img />").attr("src", "img/btn_close.gif")
 				).click(function()
 				{
 					var parentId = $(this).parent().parent().attr("id");	
@@ -158,7 +257,8 @@ var windows = function()
 			$("#popupTitle", this.element).move(this.elementId);
 		}
 
-		this.popupView();
+		this.popupPosition = true;
+		this.dispatcher();
 		this.element.css({
 			"position": "absolute",
 			"zoom": 1,
