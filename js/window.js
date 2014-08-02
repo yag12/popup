@@ -223,9 +223,10 @@ var windows = function()
 				{
 					var parentId = $(this).parent().parent().attr("id");	
 					$("[id]", "#" + parentId).each(function(){
-						if(typeof partials.windows[$(this).attr("id")] != "undefined")
+						var closeId = $(this).parent().attr("id");
+						if(typeof partials.windows[closeId] != "undefined")
 						{
-							partials.remove($(this).attr("id"));
+							partials.remove(closeId);
 						}
 					});
 
